@@ -6,6 +6,8 @@ class User < ActiveRecord::Base
   has_many :memberships
   has_many :administrations
   has_many :clients
+  has_many :synctasks
+  has_many :users
 
   include Authentication
   

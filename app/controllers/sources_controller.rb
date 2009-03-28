@@ -39,7 +39,7 @@ class SourcesController < ApplicationController
       render :action=>"noaccess"
     else 
       usersub=@app.memberships.find_by_user_id(current_user.id) if current_user
-      @source.credential=usersub.credential if usersub # this variable is available in your source adapter
+      @source.credential=usersub.credential if usersub # this variable is available in your source adapter    
       @source.refresh(@current_user) if params[:refresh] || @source.needs_refresh 
       objectvalues_cmd="select * from object_values where update_type='query' and source_id=#{@source.id}"
       objectvalues_cmd << " and user_id=" + @source.credential.user.id.to_s if @source.credential

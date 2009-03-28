@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090317223510) do
+ActiveRecord::Schema.define(:version => 20090327231443) do
 
   create_table "administrations", :force => true do |t|
     t.integer  "app_id"
@@ -89,8 +89,8 @@ ActiveRecord::Schema.define(:version => 20090317223510) do
   create_table "source_logs", :force => true do |t|
     t.string   "error"
     t.string   "message"
-    t.integer "time"
-    t.float  "timing"
+    t.integer  "time"
+    t.float    "timing"
     t.string   "operation"
     t.integer  "source_id"
     t.datetime "created_at"
@@ -110,6 +110,14 @@ ActiveRecord::Schema.define(:version => 20090317223510) do
     t.integer  "pollinterval"
     t.integer  "priority"
     t.integer  "incremental"
+    t.boolean  "queuesync"
+  end
+
+  create_table "synctasks", :force => true do |t|
+    t.integer  "source_id"
+    t.integer  "user_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "users", :force => true do |t|

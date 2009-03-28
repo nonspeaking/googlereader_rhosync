@@ -45,8 +45,18 @@ class Source < ActiveRecord::Base
     tlog(start,"ask",self.id)
     result
   end
-
+  
   def refresh(current_user)
+    if queuesync
+      task=Synctask.find_or_create_by_user_id_and_source_id(current_user.id,id)
+      task.save
+      p "Queued up task for user "+current_user.login+ ", source "+name
+    else # go ahead and do it right now
+      dosync(current_user)
+    end
+  end
+
+  def dosync(current_user)
     @current_user=current_user
     logger.info "Logged in as: "+ current_user.login if current_user
     

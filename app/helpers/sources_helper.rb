@@ -17,7 +17,6 @@ module SourcesHelper
   
   def tlog(start,operation,source_id)
     diff=(Time.new-start)
-    p "Timing "+diff.to_s
     slog(nil,"Timing: "+diff.to_s+" seconds",source_id,operation,diff)
   end
 
