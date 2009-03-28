@@ -86,7 +86,7 @@ module Paperclip
 
       return nil if uploaded_file.nil?
 
-      log("Writing attributes for #{name}")
+      #log("Writing attributes for #{name}")
       @queued_for_write[:original]   = uploaded_file.to_tempfile
       instance_write(:file_name,       uploaded_file.original_filename.strip.gsub(/[^\w\d\.\-]+/, '_'))
       instance_write(:content_type,    uploaded_file.content_type.to_s.strip)
@@ -149,7 +149,7 @@ module Paperclip
     # the instance's errors and returns false, cancelling the save.
     def save
       if valid?
-        log("Saving files for #{name}")
+        #log("Saving files for #{name}")
         flush_deletes
         flush_writes
         @dirty = false
@@ -285,7 +285,7 @@ module Paperclip
     end
 
     def log message #:nodoc:
-      logger.debug("[paperclip] #{message}") if logging?
+      #logger.debug("[paperclip] #{message}") if logging?
     end
 
     def logging? #:nodoc:

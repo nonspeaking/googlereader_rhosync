@@ -135,12 +135,13 @@ module SourcesHelper
     
   def process_update_type(utype)
     start=Time.new  # start timing the operation
-    objs=ObjectValue.find_by_sql("select distinct(object) from object_values where update_type='"+ utype +"'and source_id="+id.to_s)
+    objs=ObjectValue.find_by_sql("select distinct(object),blob_file_name from object_values where update_type='"+ utype +"'and source_id="+id.to_s)
     objs.each do |x|
       if x.object  
         objvals=ObjectValue.find_all_by_object_and_update_type(x.object,utype)  # this has all the attribute value pairs now
         attrvalues={}
         attrvalues["id"]=x.object if utype!='create' # setting the ID allows it be an update or delete
+        blob_file=x.blob_file_name
         objvals.each do |y|
           attrvalues[y.attrib]=y.value
           y.destroy
@@ -149,7 +150,8 @@ module SourcesHelper
         nvlist=make_name_value_list(attrvalues)
         if source_adapter
           name_value_list=eval(nvlist)
-          eval("source_adapter." +utype +"(name_value_list)")
+          params="(name_value_list"+ (x.blob_file_name ? ",x.blob)" : ")")
+          eval("source_adapter." +utype +params)
         end
       else
         msg="Missing an object property on the objectvalue: " + x.id.to_s
@@ -180,11 +182,12 @@ module SourcesHelper
   # and the current state of the object_values table
   # since we do a delete_all in rhosync refresh, 
   # only delete and insert are required
-  def process_objects_for_client(source,client,token,p_size=nil,repeat=false)
+  def process_objects_for_client(source,client,token,ack_token,resend_token,p_size=nil,first_request=false)
     
     # default page size of 10000
     page_size = p_size.nil? ? 10000 : p_size.to_i
     last_sync_time = Time.now
+    objs_to_return = []
     
     # Setup the join conditions
     object_value_join_conditions = "from object_values ov left join client_maps cm on \
@@ -198,57 +201,39 @@ module SourcesHelper
     object_value_query = "select * #{object_value_conditions}"
     
     # setup fields to insert in client_maps table
-    object_insert_query = "select '#{client.id}' as a,id,'insert','#{token}','#{last_sync_time.to_s}', \
-                           '#{last_sync_time.to_s}' #{object_value_conditions}"
+    object_insert_query = "select '#{client.id}' as a,id,'insert','#{token}' #{object_value_conditions}"
                     
-    # received token: if we're repeating the show,
-    # quickly return the results (inserts + deletes)
-    if token and repeat
-      if token == 'end'
-        return []
+    # if we're resending the token, quickly return the results (inserts + deletes)
+    if resend_token
+      logger.debug "[sources_helper] resending token, resend_token: #{resend_token.inspect}"
+      objs_to_return = ClientMap.get_delete_objs_by_token_status(client.id)
+      client.update_attributes({:updated_at => last_sync_time, :last_sync_token => resend_token})
+      objs_to_return.concat( ClientMap.get_insert_objs_by_token_status(object_value_join_conditions,client.id,resend_token) )
+    else
+      logger.debug "[sources_helper] ack_token: #{ack_token.inspect}, using new token: #{token.inspect}"
+      
+      # mark acknowledged token so we don't send it again
+      ClientMap.mark_objs_by_ack_token(ack_token)
+      
+      # find delete records
+      objs_to_return.concat( ClientMap.get_delete_objs_for_client(token,page_size,client.id) )
+
+      # find + save insert records
+      objs_to_insert = ObjectValue.find_by_sql object_value_query
+      ClientMap.insert_new_client_maps(object_insert_query)
+      objs_to_insert.collect! {|x| x.db_operation = 'insert'; x}
+
+      # Update the last updated time for this client
+      # to track the last sync time
+      client.update_attribute(:updated_at, last_sync_time)
+      objs_to_return.concat(objs_to_insert)
+      
+      if token and objs_to_return.length > 0
+        client.update_attribute(:last_sync_token, token)
       else
-        objs_to_return = ObjectValue.get_delete_objs_by_token(token,page_size)
-        client.update_attributes({:updated_at => last_sync_time, :last_sync_token => token})
-        return objs_to_return.concat( ObjectValue.get_insert_objs_by_token(object_value_join_conditions,token,page_size) )
+        client.update_attribute(:last_sync_token, nil)
       end
     end
-    
-    # no token, continue with processing
-    # look for changes in the current object_values list, return only records
-    # for the current user if required
-    objs_to_return = []
-    ActiveRecord::Base.transaction do
-      objs_to_delete = ClientMap.find_by_sql "select * from client_maps cm left join object_values ov on \
-                                              cm.object_value_id = ov.id \
-                                              where cm.client_id='#{client.id}' and ov.id is NULL \
-                                              and cm.dirty =0 order by ov.object limit #{page_size}"
-      objs_to_delete.each do |map|
-        objs_to_return << ObjectValue.new_delete_obj(map.object_value_id)
-        # update this client_map record with a dirty flag and the token, 
-        # so we don't send it more than once
-        ActiveRecord::Base.connection.execute "update client_maps set db_operation='delete',token='#{token}',dirty=1 where \
-                                               object_value_id='#{map.object_value_id}' \
-                                               and client_id='#{map.client_id}'"
-      end
-    end
-    
-    # INDEX: BY_SOURCE_TYPE_USER
-    objs_to_insert = ObjectValue.find_by_sql object_value_query
-    
-    # Add insert objects to client_maps based on 
-    # join query w/ object_values
-    ActiveRecord::Base.transaction do
-      ActiveRecord::Base.connection.execute "insert into client_maps 
-                                             (client_id,object_value_id,db_operation,token,created_at,updated_at) \
-                                             #{object_insert_query}"                                      
-    end
-    
-    # Update the last updated time for this client
-    # to track the last sync time
-    client.update_attribute(:updated_at, last_sync_time)
-    
-    # Setup return list (inserts + deletes)
-    objs_to_insert.collect! {|x| x.db_operation = 'insert'; x}
-    objs_to_return.concat(objs_to_insert)
+    objs_to_return
   end
 end
