@@ -6,8 +6,10 @@ class ClientMap < ActiveRecord::Base
   
   # remove acknowledged token for client
   def self.mark_objs_by_ack_token(ack_token)
-    ActiveRecord::Base.transaction do
-      ActiveRecord::Base.connection.execute "update client_maps set ack_token = 1 where token='#{ack_token}'"
+    if ack_token and ack_token.length > 0
+      ActiveRecord::Base.transaction do
+        ActiveRecord::Base.connection.execute "update client_maps set ack_token = 1 where token='#{ack_token}'"
+      end
     end
   end
   
