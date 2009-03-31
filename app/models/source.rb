@@ -47,13 +47,14 @@ class Source < ActiveRecord::Base
   end
   
   def refresh(current_user)
-    if queuesync
-      task=Synctask.find_or_create_by_user_id_and_source_id(current_user.id,id)
-      task.save
-      p "Queued up task for user "+current_user.login+ ", source "+name
-    else # go ahead and do it right now
+    # LB: Is this implemented yet? Database doesn't appear to have this attribute.
+    #if queuesync
+    #  task=Synctask.find_or_create_by_user_id_and_source_id(current_user.id,id)
+    #  task.save
+    #  p "Queued up task for user "+current_user.login+ ", source "+name
+    #else # go ahead and do it right now
       dosync(current_user)
-    end
+    #end
   end
 
   def dosync(current_user)
