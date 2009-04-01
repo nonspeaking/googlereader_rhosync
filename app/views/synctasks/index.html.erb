@@ -1,0 +1,22 @@
+<h1>Listing synctasks</h1>
+
+<table>
+  <tr>
+    <th>Source</th>
+    <th>User</th>
+  </tr>
+
+<% for synctask in @synctasks %>
+  <tr>
+    <td><%=h synctask.source_id %></td>
+    <td><%=h synctask.user_id %></td>
+    <td><%= link_to 'Show', synctask %></td>
+    <td><%= link_to 'Edit', edit_synctask_path(synctask) %></td>
+    <td><%= link_to 'Destroy', synctask, :confirm => 'Are you sure?', :method => :delete %></td>
+  </tr>
+<% end %>
+</table>
+
+<br />
+
+<%= link_to 'New synctask', new_synctask_path %>

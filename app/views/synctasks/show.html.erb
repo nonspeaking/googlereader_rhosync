@@ -1,0 +1,13 @@
+<p>
+  <b>Source:</b>
+  <%=h @synctask.source_id %>
+</p>
+
+<p>
+  <b>User:</b>
+  <%=h @synctask.user_id %>
+</p>
+
+
+<%= link_to 'Edit', edit_synctask_path(@synctask) %> |
+<%= link_to 'Back', synctasks_path %>
