@@ -110,6 +110,7 @@ ActiveRecord::Schema.define(:version => 20090331231354) do
     t.integer  "pollinterval"
     t.integer  "priority"
     t.integer  "incremental"
+    t.boolean  "queuesync"
   end
 
   create_table "users", :force => true do |t|
