@@ -73,7 +73,7 @@ ActiveRecord::Schema.define(:version => 20090331231354) do
     t.integer  "source_id"
     t.string   "object"
     t.string   "attrib"
-    t.text     "value",             :limit => 255
+    t.text     "value"
     t.integer  "pending_id"
     t.string   "update_type"
     t.integer  "user_id"
@@ -89,12 +89,11 @@ ActiveRecord::Schema.define(:version => 20090331231354) do
   create_table "source_logs", :force => true do |t|
     t.string   "error"
     t.string   "message"
-    t.integer  "time"
+    t.float    "timing"
     t.string   "operation"
     t.integer  "source_id"
     t.datetime "created_at"
     t.datetime "updated_at"
-    t.float    "timing"
   end
 
   create_table "sources", :force => true do |t|
