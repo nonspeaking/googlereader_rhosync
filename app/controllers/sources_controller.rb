@@ -70,8 +70,12 @@ class SourcesController < ApplicationController
         # generate new token for the next set of data
         @token=@resend_token ? @resend_token : get_new_token
         # get the list of objects
-        @object_values=process_objects_for_client(@source,@client,@token,@ack_token,@resend_token,params[:p_size],@first_request)
-        
+        # if this is a queued sync source and we are doing a refresh in the queue then wait for the queued sync to happen
+        if @source.queuesync and @source.needs_refresh
+          @object_values=[]
+        else
+          @object_values=process_objects_for_client(@source,@client,@token,@ack_token,@resend_token,params[:p_size],@first_request)
+        end
         # set token depending on records returned
         # if we sent zero records, we need to keep track so the client 
         # doesn't receive the last page again
