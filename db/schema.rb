@@ -73,7 +73,7 @@ ActiveRecord::Schema.define(:version => 20090331231354) do
     t.integer  "source_id"
     t.string   "object"
     t.string   "attrib"
-    t.text     "value",             :limit => 255
+    t.text     "value"
     t.integer  "pending_id"
     t.string   "update_type"
     t.integer  "user_id"
@@ -110,6 +110,7 @@ ActiveRecord::Schema.define(:version => 20090331231354) do
     t.integer  "pollinterval"
     t.integer  "priority"
     t.integer  "incremental"
+    t.boolean  "queuesync"
   end
 
   create_table "synctasks", :force => true do |t|
