@@ -1,4 +1,6 @@
 class SynctasksController < ApplicationController
+  
+  
   # GET /synctasks
   # GET /synctasks.xml
   def index
