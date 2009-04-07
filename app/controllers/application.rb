@@ -4,10 +4,7 @@
 class ApplicationController < ActionController::Base
   include AuthenticatedSystem
 
-
   # You can move this into a different controller, if you wish.  This module gives you the require_role helpers, and others.
-  # You can move this into a different controller, if you wish.  This module gives you the require_role helpers, and others.
-
   
   helper :all # include all helpers, all the time
 
@@ -18,5 +15,5 @@ class ApplicationController < ActionController::Base
   # See ActionController::Base for details 
   # Uncomment this to filter the contents of submitted sensitive data parameters
   # from your application log (in this case, all fields with names like "password"). 
-  # filter_parameter_logging :password
+  filter_parameter_logging :password
 end
