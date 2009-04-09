@@ -43,6 +43,35 @@ namespace :deploy do
   after "deploy:update_code", "deploy:symlink_db_config"
 end
 
+########################################################################
+
+namespace :demons do
+  desc "stop demons"
+  task :stop, :roles => [:app]  do
+    run "echo 'stopping demons' #{stage}"
+    run <<-CMD
+      #{current_path}/script/job_runner stop #{stage}
+    CMD
+  end
+  
+  desc "start demons"
+  task :start, :roles => [:app]  do
+    run "echo 'starting demons' #{stage}"
+    run <<-CMD
+      #{current_path}/script/job_runner start #{stage}
+    CMD
+  end
+end
+
+
+after :deploy do
+  demons.stop
+  demons.start
+end
+
+########################################################################
+
+
 namespace :rake do
   desc "Load the sample data remotely"
   task :samples do
