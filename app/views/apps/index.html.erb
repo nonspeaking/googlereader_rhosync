@@ -59,8 +59,8 @@ You have no subscribed apps.
 </table>
 <h3>Subscribe to an App</h3>
 
-<form action='<%=url_for(:controller=>"apps",:action=>"subscribe",:id=>1)%>'/>
-<select name="app_id">
+<form action='<%=url_for(:controller=>"apps",:id=>1,:action=>"subscribe")%>'/>
+<select id="app_id" name="app_id">
 <%@allapps.each do |app|%>
 <option value="<%=app.id%>"><%=app.name%></option>
 <%end%>

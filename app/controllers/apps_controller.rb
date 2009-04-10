@@ -110,7 +110,7 @@ class AppsController < ApplicationController
   
   # subscribe specified subscriber to specified app ID
   def subscribe
-    @app=App.find_by_permalink(params[:app_id]) if @app.nil?
+    @app=App.find_by_permalink(params[:app_id]) 
     user=@current_user
     if params[:subscriber]
       @current_user=User.find_by_login params[:subscriber] 
@@ -122,7 +122,7 @@ class AppsController < ApplicationController
       end
     end
     add_user_to_app(user.login,@app)
-    redirect_to :action=>:edit
+    redirect_to :action=>:edit,:id=>@app.id
   end
 
   # unsubscribe subscriber to specified app ID 
