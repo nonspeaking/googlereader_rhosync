@@ -32,6 +32,7 @@
     <th>Name</th>
     <th>Description</th>
     <th>Credentials</th>
+    <th>Unsubscribe</th>
   </tr>
 <%for app in @subapps %>
 <tr>
@@ -50,6 +51,7 @@
       </td>
     <%end%>
   <%end%>
+  <td><%=link_to 'X',url_for(:action=>"unsubscribe",:id=>1,:app_id=>app.id)%></td>
 </tr>
 
 <%end%>
@@ -58,7 +60,6 @@ You have no subscribed apps.
 <%end%>
 </table>
 <h3>Subscribe to an App</h3>
-
 <form action='<%=url_for(:controller=>"apps",:id=>1,:action=>"subscribe")%>'/>
 <select id="app_id" name="app_id">
 <%@allapps.each do |app|%>
@@ -67,7 +68,6 @@ You have no subscribed apps.
 </select>
 <% if @current_user.login=="anonymous"%>
 Login&nbsp;<input name="login"/>Password&nbsp;<input name="password"/>Email&nbsp;<input name="email"/>
-
 <%end%>
 <input type="submit" value="Subscribe">
 </form>

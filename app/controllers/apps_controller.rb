@@ -122,14 +122,24 @@ class AppsController < ApplicationController
       end
     end
     add_user_to_app(user.login,@app)
-    redirect_to :action=>:edit,:id=>@app.id
+    redirect_to :action=>:index,:id=>@app.id
   end
 
   # unsubscribe subscriber to specified app ID 
   def unsubscribe
-    @user=User.find_by_login params[:subscriber]    
-    @app.users.delete @user
-    redirect_to :action=>:edit
+    @app=App.find_by_permalink(params[:app_id]) 
+    user=@current_user
+    if params[:subscriber]
+      @current_user=User.find_by_login params[:subscriber] 
+      user=@current_user
+    else
+      if @current_user.nil? or @current_user.login=="anonymous" # create the new user on the fly
+        redirect_to :controller=>"sessions/create",:login=>params[:login],:password=>params[:password],:email=>params[:email],:app_id=>params[:app_id]
+        return
+      end
+    end 
+    @app.users.delete user
+    redirect_to :action=>:index
   end
   
   # add specified user as administrator
