@@ -4,6 +4,7 @@ class Source < ActiveRecord::Base
   has_many :source_logs
   belongs_to :app
   attr_accessor :source_adapter,:current_user,:credential
+  validates_presence_of :name,:adapter
 
   def before_validate
     self.initadapter

@@ -378,7 +378,11 @@ class SourcesController < ApplicationController
     
     @app=App.find_by_permalink params[:app_id] if params[:app_id]
     @source.app=@app
-
+    if @app.sources.size > 0 # default the url,login and password
+      @source.url=@app.sources[0].url
+      @source.login=@app.sources[0].login
+      @source.password=@app.sources[0].password
+    end
     respond_to do |format|
       format.html # new.html.erb
       format.xml  { render :xml => @source }
@@ -402,7 +406,7 @@ class SourcesController < ApplicationController
   # POST /sources.xml
   def create
     @source = Source.new(params[:source])
-    
+    @source.name=@source.adapter
     @app=App.find_by_permalink params["source"]["app_id"]
     @source.app=@app
     
@@ -422,7 +426,7 @@ class SourcesController < ApplicationController
   # PUT /sources/1.xml
   def update
     @app=App.find_by_permalink params["source"]["app_id"]
-    p "Application is: "+ @app.name
+    @source.name=@source.adapter
     respond_to do |format|
       begin
         if @source.update_attributes(params[:source])
