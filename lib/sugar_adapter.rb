@@ -69,25 +69,12 @@ class SugarAdapter < SourceAdapter
     
     @result = @client.get_entry_list(@session_id,@module_name,@query_filter,@order_by,offset,@select_fields,max_results,deleted);
   end
-
+  
   def sync
     puts "SugarCRM #{@module_name} sync with #{@result.entry_list.length}"
-        
-    user_id=@source.current_user.id
-    @result.entry_list.each do |x|      
-      x.name_value_list.each do |y|
-        unless y.value.blank?
-          o=ObjectValue.new
-          o.source_id=@source.id
-          o.object=x['id']
-          o.attrib=y.name
-          o.value=y.value
-          o.user_id=user_id if @source.credential
-          o.save
-        end
-      end
-    end
+    super 
   end
+
 
   def create(name_value_list)
     puts "SugarCRM #{@module_name} create #{name_value_list.inspect.to_s}"
