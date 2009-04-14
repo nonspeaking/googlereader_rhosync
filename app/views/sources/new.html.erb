@@ -2,7 +2,7 @@
 
 <% form_for(@source,:url=>{:action=>:create}) do |f| %>
   <p>
-    <%= f.label "Source Name" %> <%=f.text_field :name,:size=>20 %>
+    <%= f.label "Adapter Classname (file should be in lib directory)" %> <%=f.text_field :adapter,:size=>20 %>
   </p>
   <input type=hidden name="source[app_id]" value="<%=@app.id%>"/>
     <p>
@@ -15,10 +15,6 @@
         <%= f.label :priority%><%=f.text_field :priority, :size=>10%>&nbsp;
         <%= f.label :incremental%>(adds to records continuously)<%=f.check_box :incremental%>&nbsp;      
     </p>
-  <p>
-  <%= f.label "Source adapter classname (file should be in your RhoSync lib directory)" %><br/>
-  <%= f.text_field :adapter, :size=>50 %>
-  </p>
   
   <%= f.submit "Create Source" %>
 <% end %>

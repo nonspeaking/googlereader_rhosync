@@ -4,6 +4,7 @@ class Source < ActiveRecord::Base
   has_many :source_logs
   belongs_to :app
   attr_accessor :source_adapter,:current_user,:credential
+  validates_presence_of :name,:adapter
 
   def before_validate
     self.initadapter
@@ -47,14 +48,21 @@ class Source < ActiveRecord::Base
   end
   
   def refresh(current_user)
-    # LB: Is this implemented yet? Database doesn't appear to have this attribute.
-    #if queuesync
-    #  task=Synctask.find_or_create_by_user_id_and_source_id(current_user.id,id)
-    #  task.save
-    #  p "Queued up task for user "+current_user.login+ ", source "+name
-    #else # go ahead and do it right now
+    if queuesync==1  # queue up the sync/refresh task for processing by the daemon with doqueuedsync (below)
+      task=Synctask.find_or_create_by_user_id_and_source_id(current_user.id,id)
+      task.save
+      p "Queued up task for user "+current_user.login+ ", source "+name
+    else # go ahead and do it right now
       dosync(current_user)
-    #end
+    end
+  end
+  
+  def self.doqueuedsync
+    synctask=Synctask.find :first,:order=>:created_at
+    source=Source.find synctask.source_id
+    user=User.find synctask.user_id
+    source.dosync(user)  # call the method below that perfroms the actual sync
+    synctask.delete  # take this task out of the queye
   end
 
   def dosync(current_user)

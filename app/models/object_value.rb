@@ -21,7 +21,7 @@ class ObjectValue < ActiveRecord::Base
     end  
   end
   
-  def hash_from_data(attrib=nil,object=nil,update_type=nil,source_id=nil,user_id=nil,value=nil,random=nil)
+  def self.hash_from_data(attrib=nil,object=nil,update_type=nil,source_id=nil,user_id=nil,value=nil,random=nil)
     "#{object}#{attrib}#{update_type}#{source_id}#{user_id}#{value}#{random}".hash.to_i
   end
 end

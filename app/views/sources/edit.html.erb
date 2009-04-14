@@ -2,9 +2,8 @@
 
 <% form_for(@source,:url=>{:action=>:update}) do |f| %>
   <p>
-    <%= f.label "Source Name" %> <%=f.text_field :name,:size=>20 %>&nbsp;
-    Application <%=@app.name%>
-    <input type=hidden id="source_app_id" name="source[app_id]" value="<%=@app.id%>"/>
+    <%= f.label "Adapter Classname (file should be in lib directory)" %> <%=f.text_field :adapter,:size=>20 %>
+    <input type="hidden" id="source_app_id" name="source[app_id]" value="<%=@app.id%>"/>
   </p>
   <p>
     <%= f.label :url %><%= f.text_field "url", :size=>80%><br/>
@@ -14,12 +13,8 @@
   <p>
       <%= f.label "Poll Interval (seconds)"%><%= f.text_field :pollinterval, :size=>10 %>&nbsp;
       <%= f.label :priority%><%=f.text_field :priority, :size=>10%>&nbsp;
-      <%= f.label "Queue sync"%>(for slow backends)<%=f.check_box :queuesync%>&nbsp;      
+      <%= f.label "Queue sync"%> (for slow backends)<%=f.check_box :queuesync%>&nbsp;      
   </p>
-<p>
-<%= f.label "Source adapter classname (file should be in your RhoSync lib directory)" %><br/>
-<%= f.text_field :adapter, :size=>50 %>
-</p>
 <p>
 <%= f.submit "Update source adapter code" %>
 <%end%>
@@ -28,7 +23,7 @@
 <%=link_to 'View Log',{:action=>'viewlog',:id=>@source}%>
 <p>
 <form action="<%=url_for(:controller=>"sources",:action=>"ask",:id=>@source.id)%>">
-Question for Source Adapter <input name="question" size="50">&nbsp;<input type="submit" value="Ask!"/>
+<small>Question for Source Adapter <input name="question" size="50">&nbsp;<input type="submit" value="Ask!"/></small>
 </form>
 </p>
 <p>
