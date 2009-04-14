@@ -11,6 +11,8 @@ class SourceAdapter
   def query
   end
   
+  
+  
   def sync
     if @result.entry_list.size>0 
       if @source.credential.nil?

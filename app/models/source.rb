@@ -48,7 +48,8 @@ class Source < ActiveRecord::Base
   end
   
   def refresh(current_user)
-    if queuesync==1  # queue up the sync/refresh task for processing by the daemon with doqueuedsync (below)
+    p "Queuesync: " + queuesync.to_s
+    if  queuesync==true # queue up the sync/refresh task for processing by the daemon with doqueuedsync (below)
       task=Synctask.find_or_create_by_user_id_and_source_id(current_user.id,id)
       task.save
       p "Queued up task for user "+current_user.login+ ", source "+name
