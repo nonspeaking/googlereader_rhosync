@@ -62,7 +62,7 @@ class Source < ActiveRecord::Base
     synctask=Synctask.find :first,:order=>:created_at
     source=Source.find synctask.source_id
     user=User.find synctask.user_id
-    source.dosync(user)  # call the method below that perfroms the actual sync
+    source.dosync(user)  # call the method below that performs the actual sync
     synctask.delete  # take this task out of the queye
   end
 
@@ -87,17 +87,20 @@ class Source < ActiveRecord::Base
     rescue Exception=>e
       slog(e, "Failed to create",self.id)
     end 
+    cleanup_update_type('create')
     begin
       process_update_type('update')
     rescue Exception=>e
       slog(e, "Failed to update",self.id)
     end
+    cleanup_update_type('create')
     begin
       process_update_type('delete')
     rescue Exception=>e
       slog(e, "Failed to delete",self.id)
     end
-    
+    cleanup_update_type('delete')
+        
     clear_pending_records(@credential)
 
     begin  
