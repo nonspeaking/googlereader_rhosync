@@ -27,7 +27,8 @@ class SourceAdapter
         sql="INSERT INTO object_values(id,pending_id,source_id,object,attrib,value,user_id) VALUES"
         @result.each do |x|      
           x.keys.each do |key|
-            unless key.blank? or x[key].blank?    
+            unless key.blank? or x[key].blank?   
+              x.key=x.key.gsub(/\'/,"''") 
               ovid=ObjectValue.hash_from_data(key,x['id'],nil,@source.id,user_id,x[key],rand)
               pending_id = ObjectValue.hash_from_data(key,x['id'],nil,@source.id,user_id,x[key])          
               sql << "(" + ovid.to_s + "," + pending_id.to_s + "," + @source.id.to_s + ",'" + x['id'] + "','" + key + "','" + x[key] + "'," + user_id.to_s + "),"
@@ -40,7 +41,8 @@ class SourceAdapter
         p "Sync for SQLite and other databases"
         @result.each do |x|      
           x.keys.each do |key|
-            unless x[key].blank?         
+            unless x[key].blank?  
+              x.key=x.key.gsub(/\'/,"''")        
               sql="INSERT INTO object_values(id,pending_id,source_id,object,attrib,value,user_id) VALUES"
               ovid=ObjectValue.hash_from_data(key,x['id'],nil,@source.id,user_id,x[key],rand)
               pending_id = ObjectValue.hash_from_data(key,x['id'],nil,@source.id,user_id,x[key])          
