@@ -11,8 +11,11 @@ class SourceAdapter
   def query
   end
   
+  # this base class sync method now expects a "generic results" structure.
+  # specifically "generic results" is an array of hashes
+  # you can choose to use or not use the parent class sync in your own RhoSync source adapters
   def sync
-    if @result.entry_list.size>0 
+    if @result.size>0 
       if @source.credential.nil?
         user_id='NULL'
       else
@@ -22,12 +25,12 @@ class SourceAdapter
       if config.database_configuration[RAILS_ENV]["adapter"]=="mysql"
         p "MySQL optimized sync"
         sql="INSERT INTO object_values(id,pending_id,source_id,object,attrib,value,user_id) VALUES"
-        @result.entry_list.each do |x|      
-          x.name_value_list.each do |y|
-            unless y.value.blank?         
-              ovid=ObjectValue.hash_from_data(y.name,x['id'],nil,@source.id,user_id,y.value,rand)
-              pending_id = ObjectValue.hash_from_data(y.name,x['id'],nil,@source.id,user_id,y.value)          
-              sql << "(" + ovid.to_s + "," + pending_id.to_s + "," + @source.id.to_s + ",'" + x['id'] + "','" + y.name + "','" + y.value + "'," + user_id.to_s + "),"
+        @result.each do |x|      
+          x.keys.each do |key|
+            unless key.blank? or x[key].blank?    
+              ovid=ObjectValue.hash_from_data(key,x['id'],nil,@source.id,user_id,x[key],rand)
+              pending_id = ObjectValue.hash_from_data(key,x['id'],nil,@source.id,user_id,x[key])          
+              sql << "(" + ovid.to_s + "," + pending_id.to_s + "," + @source.id.to_s + ",'" + x['id'] + "','" + key + "','" + x[key] + "'," + user_id.to_s + "),"
             end
           end
         end
@@ -35,13 +38,13 @@ class SourceAdapter
         ActiveRecord::Base.connection.execute sql
       else  # sqlite and others dont support multiple row inserts from one SQL statement
         p "Sync for SQLite and other databases"
-        @result.entry_list.each do |x|      
-          x.name_value_list.each do |y|
-            unless y.value.blank?         
+        @result.each do |x|      
+          x.keys.each do |key|
+            unless x[key].blank?         
               sql="INSERT INTO object_values(id,pending_id,source_id,object,attrib,value,user_id) VALUES"
-              ovid=ObjectValue.hash_from_data(y.name,x['id'],nil,@source.id,user_id,y.value,rand)
-              pending_id = ObjectValue.hash_from_data(y.name,x['id'],nil,@source.id,user_id,y.value)          
-              sql << "(" + ovid.to_s + "," + pending_id.to_s + "," + @source.id.to_s + ",'" + x['id'] + "','" + y.name + "','" + y.value + "'," + user_id.to_s + ")"
+              ovid=ObjectValue.hash_from_data(key,x['id'],nil,@source.id,user_id,x[key],rand)
+              pending_id = ObjectValue.hash_from_data(key,x['id'],nil,@source.id,user_id,x[key])          
+              sql << "(" + ovid.to_s + "," + pending_id.to_s + "," + @source.id.to_s + ",'" + x['id'] + "','" + key + "','" + x[key] + "'," + user_id.to_s + ")"
               ActiveRecord::Base.connection.execute sql
             end
           end
