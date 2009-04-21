@@ -9,6 +9,6 @@ class App < ActiveRecord::Base
   end
   
   def self.find_by_permalink(link)
-    App.find(:first, :conditions => ["id =:link or name =:link", {:link=> link}])
+    App.find(:first, :conditions => ["id =:id or name =:link", {:link=> link, :id=>link.to_i}])
   end
 end
