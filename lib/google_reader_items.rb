@@ -11,7 +11,7 @@ class GoogleReaderItems < SourceAdapter
     @result=[]
     
     if @source.credential and !@source.credential.login.blank?
-      log "GoogleReaderItems syncing for user - #{@source.credential.login}/#{@source.credential.password}"
+      log "GoogleReaderItems syncing for user - #{@source.credential.login}"
       
       authresponse=RestClient.post('https://www.google.com/accounts/ClientLogin', :service=>'reader', :Email=>@source.credential.login, :Passwd=>@source.credential.password, :source=>'rhosync')
       if authresponse=~/SID=(.*)/
